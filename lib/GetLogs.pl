@@ -7,6 +7,7 @@ use Date::Parse;
 use HTTP::Request::Common qw(GET);
 use HTTP::Cookies;
 use LWP::UserAgent;
+use LWP::Protocol::https;
 use Data::Dumper;
 
 my $log_key = $ENV{'LOGENTRIES_LOG_KEY'};
