@@ -21,8 +21,8 @@ my $json_response;
 my $next_page_link;
 
 ## Convert time strings to epoch timestamps
-my $start_timestamp = str2time($start_time);
-my $end_timestamp = str2time($end_time);
+my $start_timestamp = str2time($start_time)."000";
+my $end_timestamp = str2time($end_time)."000";
 
 my $browser = LWP::UserAgent->new();
 $browser->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1));
