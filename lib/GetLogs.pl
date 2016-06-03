@@ -9,6 +9,7 @@ use HTTP::Cookies;
 use LWP::UserAgent;
 use LWP::Protocol::https;
 use Data::Dumper;
+use JSON;
 
 my $log_key = $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
@@ -41,7 +42,9 @@ $json_response = $browser->get($url,
     "Content-Type" => "application/json"
 );
 
-print Dumper($json_response);
+my $message = $json_response->decoded_content;
+
+print $message."\n";;
 
 ## Get back a response containing the URI to your results
 
