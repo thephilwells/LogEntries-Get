@@ -2,6 +2,7 @@ package LogEntries::Query;
 
 use strict;
 use warnings;
+use JSON;
 
 sub new {
     my $class = shift;
@@ -19,6 +20,14 @@ sub newUrl {
            .$end_time
            ."&query="
            .$query;
+}
+
+sub getFirstPageLink {
+    my ($self, $response) = @_;
+    my $encoded_message = $response->decoded_content;
+    my $message = decode_json($encoded_message);
+    my @first_page_links = $message->{"links"};
+    return $first_page_links[0][0]{'href'};
 }
 
 1;

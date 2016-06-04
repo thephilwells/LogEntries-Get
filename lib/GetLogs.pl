@@ -17,10 +17,11 @@ my $start_time = "05/26/2016 01:10PM";
 my $end_time = "05/27/2016 01:10PM";
 my $query_string = "where(error)";
 my $uri_response;
-my $json_response;
-my $next_page_link;
+my $response;
+my $first_page_link;
 
 ## Convert time strings to epoch timestamps
+## Adding the additional zeroes to convert these to ms
 my $start_timestamp = str2time($start_time)."000";
 my $end_timestamp = str2time($end_time)."000";
 
@@ -36,18 +37,24 @@ my $url = $query->newUrl(
     $query_string
 );
 
-# $browser->header();
-$json_response = $browser->get($url,
+## Get back a response containing the URI to your results
+$response = $browser->get($url,
     "x-api-key" => $api_key,
     "Content-Type" => "application/json"
 );
 
-my $message = $json_response->decoded_content;
+die "$url -- GET error: ", $response->status_line unless $response->is_success;
 
-print $message."\n";;
+$first_page_link = $query->getFirstPageLink($response);
+print $first_page_link;
 
-## Get back a response containing the URI to your results
 
-## Poll that URI until it returns your results, as complex queries or queries spanning a large set of entries may take longer to complete
+
+# print $message."\n";
+# print $first_page_link."\n";
+
+
+## Poll that URI until it returns your results, as complex queries or queries spanning 
+## a large set of entries may take longer to complete
 
 ## Parse the results and display in your own application
