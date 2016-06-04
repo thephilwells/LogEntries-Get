@@ -45,16 +45,12 @@ $response = $browser->get($url,
 
 die "$url -- GET error: ", $response->status_line unless $response->is_success;
 
-$first_page_link = $query->getFirstPageLink($response);
-print $first_page_link;
-
-
-
-# print $message."\n";
-# print $first_page_link."\n";
-
+$first_page_link = $query->parseFirstPageLink($response);
 
 ## Poll that URI until it returns your results, as complex queries or queries spanning 
 ## a large set of entries may take longer to complete
+my $first_page = $query->pollQueryLink($first_page_link);
+my $encoded_message = $first_page->decoded_content;
+print $encoded_message;
 
 ## Parse the results and display in your own application
