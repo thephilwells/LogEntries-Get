@@ -4,10 +4,6 @@ use LogEntries::Query;
 use strict;
 use warnings;
 use Date::Parse;
-use HTTP::Request::Common qw(GET);
-use HTTP::Cookies;
-use LWP::UserAgent;
-use LWP::Protocol::https;
 use Data::Dumper;
 use JSON;
 
@@ -15,9 +11,9 @@ my $log_key = $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
 my $start_time = "05/26/2016 01:10PM";
 my $end_time = "05/27/2016 01:10PM";
-my $query_string = "where(error)";
-my $uri_response;
-my $response;
+my $query_string = "where(PWATMWEB001)";
+my $uri_handshake_response;
+my $handshake_response;
 my $first_page_link;
 
 ## Convert time strings to epoch timestamps
@@ -25,32 +21,29 @@ my $first_page_link;
 my $start_timestamp = str2time($start_time)."000";
 my $end_timestamp = str2time($end_time)."000";
 
-my $browser = LWP::UserAgent->new();
-$browser->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1));
+## Instantiate LogEntries Query object
+my $query = LogEntries::Query->new();
 
-my $query = LogEntries::Query->new();;
+## Construct logEntries handshake URL
+my $url = $query->newUrl($log_key, $start_timestamp, $end_timestamp, $query_string);
 
-my $url = $query->newUrl(
-    $log_key,
-    $start_timestamp,
-    $end_timestamp,
-    $query_string
-);
+## Get back a handshake_response containing the URI to your results
+$handshake_response = $query->handshake($url);
 
-## Get back a response containing the URI to your results
-$response = $browser->get($url,
-    "x-api-key" => $api_key,
-    "Content-Type" => "application/json"
-);
+## Extract the URI link to the first page of results
+$first_page_link = $query->parseFirstPageLink($handshake_response);
+do { sleep(1);
+} while (!defined $first_page_link);
 
-die "$url -- GET error: ", $response->status_line unless $response->is_success;
-
-$first_page_link = $query->parseFirstPageLink($response);
-
-## Poll that URI until it returns your results, as complex queries or queries spanning 
-## a large set of entries may take longer to complete
-my $first_page = $query->pollQueryLink($first_page_link);
-my $encoded_message = $first_page->decoded_content;
-print $encoded_message;
+## Poll that URI until it returns first page of results
+# my $first_page = $query->getSinglePageOfResults($first_page_link);
 
 ## Parse the results and display in your own application
+# my $encoded_message = $first_page->decoded_content;
+# print $encoded_message;
+
+## Get all available pages of results
+my $all_events = $query->getAllResults($first_page_link);
+print Dumper $all_events;
+
+## Get X pages of results
