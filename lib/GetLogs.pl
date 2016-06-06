@@ -11,7 +11,7 @@ my $log_key = $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
 my $start_time = "05/26/2016 01:10PM";
 my $end_time = "05/27/2016 01:10PM";
-my $query_string = "where(PWATMWEB001)";
+my $query_string = "where(PWATMWEB001 AND error)";
 my $uri_handshake_response;
 my $handshake_response;
 my $first_page_link;
@@ -32,8 +32,6 @@ $handshake_response = $query->handshake($url);
 
 ## Extract the URI link to the first page of results
 $first_page_link = $query->parseFirstPageLink($handshake_response);
-do { sleep(1);
-} while (!defined $first_page_link);
 
 ## Poll that URI until it returns first page of results
 # my $first_page = $query->getSinglePageOfResults($first_page_link);
@@ -43,7 +41,7 @@ do { sleep(1);
 # print $encoded_message;
 
 ## Get all available pages of results
-my $all_events = $query->getAllResults($first_page_link);
-print Dumper $all_events;
+my @all_events = $query->getAllResults($first_page_link);
+print Dumper @all_events;
 
 ## Get X pages of results
