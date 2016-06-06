@@ -76,12 +76,13 @@ sub getAllResults {
         my @next_page_links = $message->{"links"};
         my @events_on_page = $message->{"events"};        
         $next_page_link =  $next_page_links[0][0]{'href'};
-        if ($next_page_link ne $last_link) {
+        sleep(2); ## Throttle, trying to prevent 503 errors, not much luck
+        if (defined $next_page_link && $next_page_link ne $last_link) {
             push @all_events, @events_on_page;
             $last_link = $next_page_link;
-            print "line 83: next_page_link: ".$next_page_link."\n";
+            print "line 83: next_page_link: ".$next_page_link."\n"; ## Debug, remove for release
         }
-    } while ( defined $next_page_link);
+    } while ( defined $next_page_link );
     return @all_events;
 }
 
