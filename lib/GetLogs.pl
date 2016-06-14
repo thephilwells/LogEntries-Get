@@ -9,9 +9,9 @@ use JSON;
 
 my $log_key = $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
-my $start_time = "05/26/2016 01:10PM";
-my $end_time = "05/27/2016 01:10PM";
-my $query_string = "where(PWATMWEB001 AND error)";
+my $start_time = "06/06/2016 01:10PM";
+my $end_time = "06/07/2016 01:10PM";
+my $query_string = "where()";
 my $uri_handshake_response;
 my $handshake_response;
 my $first_page_link;

@@ -7,7 +7,6 @@ use HTTP::Cookies;
 use LWP::UserAgent;
 use LWP::Protocol::https;
 use JSON;
-use Async;
 
 my $browser = LWP::UserAgent->new();
 $browser->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1));
@@ -76,11 +75,11 @@ sub getAllResults {
         my @next_page_links = $message->{"links"};
         my @events_on_page = $message->{"events"};        
         $next_page_link =  $next_page_links[0][0]{'href'};
-        sleep(2); ## Throttle, trying to prevent 503 errors, not much luck
+        # sleep(2); ## Throttle, trying to prevent 503 errors, not much luck
         if (defined $next_page_link && $next_page_link ne $last_link) {
             push @all_events, @events_on_page;
             $last_link = $next_page_link;
-            print "line 83: next_page_link: ".$next_page_link."\n"; ## Debug, remove for release
+            # print "line 83: next_page_link: ".$next_page_link."\n"; ## Debug, remove for release
         }
     } while ( defined $next_page_link );
     return @all_events;
