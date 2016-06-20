@@ -9,8 +9,8 @@ use JSON;
 
 my $log_key = $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
-my $start_time = "06/06/2016 01:10PM";
-my $end_time = "06/07/2016 01:10PM";
+my $start_time = "06/18/2016 01:10PM";
+my $end_time = "06/19/2016 01:10PM";
 my $query_string = "where()";
 my $uri_handshake_response;
 my $handshake_response;
@@ -31,7 +31,7 @@ my $url = $query->newUrl($log_key, $start_timestamp, $end_timestamp, $query_stri
 $handshake_response = $query->handshake($url);
 
 ## Extract the URI link to the first page of results
-$first_page_link = $query->parseFirstPageLink($handshake_response);
+$first_page_link = $query->parseResultPageLink($handshake_response);
 
 ## Poll that URI until it returns first page of results
 # my $first_page = $query->getSinglePageOfResults($first_page_link);
