@@ -28,20 +28,20 @@ my $query = LogEntries::Query->new();
 my $url = $query->newUrl($log_key, $start_timestamp, $end_timestamp, $query_string);
 
 ## Get back a handshake_response containing the URI to your results
-$handshake_response = $query->handshake($url);
+$handshake_response = $query->handshake($api_key, $url);
 
 ## Extract the URI link to the first page of results
 $first_page_link = $query->parseResultPageLink($handshake_response);
 
-## Poll that URI until it returns first page of results
-# my $first_page = $query->getSinglePageOfResults($first_page_link);
+# Poll that URI until it returns first page of results
+my $first_page = $query->getSinglePageOfResults($first_page_link);
 
-## Parse the results and display in your own application
-# my $encoded_message = $first_page->decoded_content;
-# print $encoded_message;
+# Parse the results and display in your own application
+my $encoded_message = $first_page->decoded_content;
+print $encoded_message;
 
 ## Get all available pages of results
-my @all_events = $query->getAllResults($first_page_link);
+my @all_events = $query->getAllResults($api_key, $first_page_link);
 print Dumper @all_events;
 
 ## Get X pages of results

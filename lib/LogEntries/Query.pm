@@ -10,7 +10,6 @@ use JSON;
 
 my $browser = LWP::UserAgent->new();
 $browser->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1));
-my $api_key = $ENV{'LOGENTRIES_API_KEY'};
 
 sub new {
     my $class = shift;
@@ -36,7 +35,7 @@ sub newUrl {
 ## are ready. When you hit the results URI, I will get back a “continue” URI until 
 ## the results are ready. This reduces the risk of timeouts.
 sub handshake {
-    my ($self, $url) = @_;
+    my ($self, $api_key, $url) = @_;
     
     my $response = $browser->get($url,
         "x-api-key" => $api_key,
@@ -75,29 +74,31 @@ sub decodeResponse {
     return $message;
 }
 
-## Use the results URI to get a page of log results, oncluding the link to the next page
+## Use the results URI to get a page of log results, including the liurlnk to the next page
 sub getSinglePageOfResults {
-    my ($self, $link) = @_;
-    ## Send a GET to our query link
-    my $response = $browser->get($link,
+    my ($self, $api_key, $url) = @_;
+    ## Send a GET to our query url
+    my $response = $browser->get($url,
         "x-api-key" => $api_key,
         "Content-Type" => "application/json"
     );
-    die "$link -- GET error: ", $response->status_line unless $response->is_success;
+    die "$url -- GET error: ", $response->status_line unless $response->is_success;
     return $response;
 }
 
 ## Helper method to iterate through all results pages for a query and return them as
 ## one big array.
 sub getAllResults {
-    my ($self, $first_page_link) = @_;
+    my ($self, $api_key, $first_page_link) = @_;
     
     my @all_events;
     my $next_page_link = $first_page_link;
     my $last_link = '';
     do {
-        my $response = $self->getSinglePageOfResults($next_page_link);
-        my $message = decodeResponse($response);
+        my $response = $self->getSinglePageOfResults($api_key, $next_page_link);
+        # my $message = decodeResponse($response);
+        my $encoded_message = $response->decoded_content;
+        my $message = decode_json($encoded_message);
         my @next_page_links = $message->{"links"};
         my @events_on_page = $message->{"events"};
         $next_page_link =  $next_page_links[0][0]{'href'};
