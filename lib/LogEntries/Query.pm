@@ -9,7 +9,11 @@ use LWP::Protocol::https;
 use JSON;
 
 my $browser = LWP::UserAgent->new();
-$browser->cookie_jar(HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1));
+$browser->cookie_jar(
+    HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1)
+);
+
+my $queryUrl = "https://rest.logentries.com/query/logs/";
 
 sub new {
     my $class = shift;
@@ -17,31 +21,24 @@ sub new {
     return $self;
 }
 
-sub newUrl {
-    my ($self, $log_key, $start_time, $end_time, $query)  = @_;
-    
-    return "https://rest.logentries.com/query/logs/"
-           .$log_key
-           ."?from="
-           .$start_time
-           ."&to="
-           .$end_time
-           ."&query="
-           .$query;
-}
-
-## As some queries may take a little longer to return results, this first call to the API will return 
-## a new URI to my results, rather than keep the connection open until the results 
-## are ready. When you hit the results URI, I will get back a “continue” URI until 
-## the results are ready. This reduces the risk of timeouts.
+## As some queries may take a little longer to return results, this first call 
+## to the API will return  a new URI to my results, rather than keep the 
+## connection open until the results are ready. When you hit the results URI, I
+## will get back a “continue” URI until the results are ready. This reduces the
+## risk of timeouts.
 sub handshake {
-    my ($self, $api_key, $url) = @_;
+    my ($self, $api_key, $log_keys_ref, $start_timestamp,
+        $end_timestamp, $query_string) = @_;
+
+    my $payload = buildPayload($log_keys_ref, $start_timestamp,
+        $end_timestamp, $query_string);
     
-    my $response = $browser->get($url,
+    my $response = $browser->post($queryUrl,
         "x-api-key" => $api_key,
         "Content-Type" => "application/json"
     );
-    die "$url -- GET error: ", $response->status_line unless $response->is_success;
+    die "$queryUrl -- POST error: ",
+        $response->status_line unless $response->is_success;
     return $response;
 }
 
@@ -74,7 +71,8 @@ sub decodeResponse {
     return $message;
 }
 
-## Use the results URI to get a page of log results, including the liurlnk to the next page
+## Use the results URI to get a page of log results, including the liurlnk to
+## the next page
 sub getSinglePageOfResults {
     my ($self, $api_key, $url) = @_;
     ## Send a GET to our query url
@@ -82,12 +80,13 @@ sub getSinglePageOfResults {
         "x-api-key" => $api_key,
         "Content-Type" => "application/json"
     );
-    die "$url -- GET error: ", $response->status_line unless $response->is_success;
+    die "$url -- GET error: ",
+        $response->status_line unless $response->is_success;
     return $response;
 }
 
-## Helper method to iterate through all results pages for a query and return them as
-## one big array.
+## Helper method to iterate through all results pages for a query and return
+## them as one big array.
 sub getAllResults {
     my ($self, $api_key, $first_page_link) = @_;
     
@@ -108,6 +107,26 @@ sub getAllResults {
         }
     } while ( defined $next_page_link );
     return @all_events;
+}
+
+sub buildPayload {
+    my ($self, $log_keys_ref, $start_timestamp,
+        $end_timestamp, $query_string) = @_;
+
+    my @log_keys = @{ $log_keys_ref };
+    my %payloadHash = {
+        logs => @log_keys;
+        leql => {
+            during => {
+                from => $start_timestamp,
+                to => $end_timestamp
+            }
+            statement => $query_string
+        }
+    };
+    ## convert hash to json
+
+    ## convert json to string
 }
 
 1;

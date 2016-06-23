@@ -24,11 +24,9 @@ my $end_timestamp = str2time($end_time)."000";
 ## Instantiate LogEntries Query object
 my $query = LogEntries::Query->new();
 
-## Construct logEntries handshake URL
-my $url = $query->newUrl($log_key, $start_timestamp, $end_timestamp, $query_string);
-
 ## Get back a handshake_response containing the URI to your results
-$handshake_response = $query->handshake($api_key, $url);
+$handshake_response = $query->handshake($api_key, \@log_keys, $start_timestamp,
+    $end_timestamp, $query_string);
 
 ## Extract the URI link to the first page of results
 $first_page_link = $query->parseResultPageLink($handshake_response);
