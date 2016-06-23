@@ -124,9 +124,9 @@ sub buildPayload {
             statement => $query_string
         }
     };
-    ## convert hash to json
-
-    ## convert json to string
+    ## convert hash to json string
+    my $payloadJSON = to_json($payloadHash);
+    die $payloadJSON."\n"; # debug
 }
 
 1;
