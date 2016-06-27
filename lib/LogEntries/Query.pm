@@ -8,6 +8,8 @@ use LWP::UserAgent;
 use LWP::Protocol::https;
 use JSON;
 
+my @log_keys;
+
 my $browser = LWP::UserAgent->new();
 $browser->cookie_jar(
     HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1)
@@ -27,10 +29,13 @@ sub new {
 ## will get back a “continue” URI until the results are ready. This reduces the
 ## risk of timeouts.
 sub handshake {
-    my ($self, $api_key, $log_keys_ref, $start_timestamp,
+    my ($self, $api_key, $log_keys, $start_timestamp,
         $end_timestamp, $query_string) = @_;
 
-    my $payload = buildPayload($log_keys_ref, $start_timestamp,
+    @log_keys = @{ $log_keys };
+    print "!! LINE 34 log_keys: ".$log_keys[0]."\n";
+
+    my $payload = buildPayload($start_timestamp,
         $end_timestamp, $query_string);
     
     my $response = $browser->post($queryUrl,
@@ -110,22 +115,23 @@ sub getAllResults {
 }
 
 sub buildPayload {
-    my ($self, $log_keys_ref, $start_timestamp,
+    my ($self, $start_timestamp,
         $end_timestamp, $query_string) = @_;
 
-    my @log_keys = @{ $log_keys_ref };
+    print "!! LINE 121 log_keys: ".$log_keys[0]."\n";
+
     my %payloadHash = {
-        logs => @log_keys;
+        logs => @log_keys,
         leql => {
             during => {
                 from => $start_timestamp,
                 to => $end_timestamp
-            }
+            },
             statement => $query_string
         }
     };
     ## convert hash to json string
-    my $payloadJSON = to_json($payloadHash);
+    my $payloadJSON = to_json(%payloadHash);
     die $payloadJSON."\n"; # debug
 }
 
