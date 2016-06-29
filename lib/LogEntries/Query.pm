@@ -44,11 +44,6 @@ sub handshake {
         "Content-Type" => "application/json",
         "Content" => $payload
     );
-
-print "!! x-api-key: ".$api_key."\n";
-print "!! Content-Type: "."application/json"."\n";
-print "!! Content: ".$payload."\n";
-
     die "$queryUrl -- POST error: ",
         $response->status_line unless $response->is_success;
     return $response;
@@ -141,8 +136,8 @@ sub __buildPayload {
     ## if only one log is in @log_keys, it doesn't get brackets,
     ## so we need to interpolate them here
     print "initial payload: ".$payload."\n";
-    $payload =~ s/"logs":("\S")/"logs":\[$1\]/;
-    die "altered payload: ".$payload;
+    $payload =~ s/"logs":("\S+")/"logs":[$1]/;
+    return $payload;
 }
 
 1;
