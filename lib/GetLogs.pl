@@ -34,7 +34,7 @@ $handshake_response = $query->handshake($api_key, \@log_keys, $start_timestamp,
 $first_page_link = $query->parseResultPageLink($handshake_response);
 
 # Poll that URI until it returns first page of results
-my $first_page = $query->getSinglePageOfResults($first_page_link);
+my $first_page = $query->getSinglePageOfResults($api_key, $first_page_link);
 
 # Parse the results and display in your own application
 my $encoded_message = $first_page->decoded_content;
