@@ -12,7 +12,7 @@ push @log_keys, $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
 my $start_time = "06/18/2016 01:10PM";
 my $end_time = "06/19/2016 01:10PM";
-my $query_string = "where()";
+my $query_string = "where(*)";
 my $uri_handshake_response;
 my $handshake_response;
 my $first_page_link;
@@ -26,7 +26,7 @@ my $end_timestamp = str2time($end_time)."000";
 my $query = LogEntries::Query->new();
 
 ## Get back a handshake_response containing the URI to your results
-print "!! LINE 29 log_keys: ".$log_keys[0]."\n";
+
 $handshake_response = $query->handshake($api_key, \@log_keys, $start_timestamp,
     $end_timestamp, $query_string);
 

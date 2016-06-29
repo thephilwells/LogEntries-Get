@@ -7,6 +7,7 @@ use HTTP::Cookies;
 use LWP::UserAgent;
 use LWP::Protocol::https;
 use JSON;
+use Data::Dumper;
 
 my @log_keys;
 
@@ -35,13 +36,19 @@ sub handshake {
     @log_keys = @{ $log_keys };
     print "!! LINE 34 log_keys: ".$log_keys[0]."\n";
 
-    my $payload = buildPayload($start_timestamp,
+    my $payload = __buildPayload($start_timestamp,
         $end_timestamp, $query_string);
     
     my $response = $browser->post($queryUrl,
         "x-api-key" => $api_key,
-        "Content-Type" => "application/json"
+        "Content-Type" => "application/json",
+        "Content" => $payload
     );
+
+print "!! x-api-key: ".$api_key."\n";
+print "!! Content-Type: "."application/json"."\n";
+print "!! Content: ".$payload."\n";
+
     die "$queryUrl -- POST error: ",
         $response->status_line unless $response->is_success;
     return $response;
@@ -114,13 +121,10 @@ sub getAllResults {
     return @all_events;
 }
 
-sub buildPayload {
-    my ($self, $start_timestamp,
-        $end_timestamp, $query_string) = @_;
+sub __buildPayload {
+    my ($start_timestamp, $end_timestamp, $query_string) = @_;
 
-    print "!! LINE 121 log_keys: ".$log_keys[0]."\n";
-
-    my %payloadHash = {
+    my %payloadHash = (
         logs => @log_keys,
         leql => {
             during => {
@@ -129,10 +133,16 @@ sub buildPayload {
             },
             statement => $query_string
         }
-    };
+    );
+
     ## convert hash to json string
-    my $payloadJSON = to_json(%payloadHash);
-    die $payloadJSON."\n"; # debug
+    my $payload =  to_json(\%payloadHash);
+
+    ## if only one log is in @log_keys, it doesn't get brackets,
+    ## so we need to interpolate them here
+    print "initial payload: ".$payload."\n";
+    $payload =~ s/"logs":("\S")/"logs":\[$1\]/;
+    die "altered payload: ".$payload;
 }
 
 1;
