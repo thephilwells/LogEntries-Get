@@ -34,7 +34,7 @@ sub handshake {
         $end_timestamp, $query_string) = @_;
 
     @log_keys = @{ $log_keys };
-    print "!! LINE 34 log_keys: ".$log_keys[0]."\n";
+    print "!! LINE 37 log_keys: ".$log_keys[0]."\n";
 
     my $payload = __buildPayload($start_timestamp,
         $end_timestamp, $query_string);
@@ -54,6 +54,7 @@ sub parseResultPageLink {
     my ($self, $response) = @_;
     
     my $encoded_message = $response->decoded_content;
+    # print "!! line 57 - encoded_message: $encoded_message\n";
     my $message = decode_json($encoded_message);
     my @first_page_links = $message->{"links"};
     return $first_page_links[0][0]{'href'};
@@ -82,6 +83,10 @@ sub decodeResponse {
 ## the next page
 sub getSinglePageOfResults {
     my ($self, $api_key, $url) = @_;
+
+    # print "!! Line 86 - api_Key: $api_key\n";
+    # print "!! Line 87 - url: $url\n";
+
     ## Send a GET to our query url
     my $response = $browser->get($url,
         "x-api-key" => $api_key,
@@ -135,8 +140,9 @@ sub __buildPayload {
 
     ## if only one log is in @log_keys, it doesn't get brackets,
     ## so we need to interpolate them here
-    print "initial payload: ".$payload."\n";
-    $payload =~ s/"logs":("\S+")/"logs":[$1]/;
+    # print "!! initial payload: $payload\n";
+    $payload =~ s/"logs":("[A-Za-z0-9\-]+")/"logs":[$1]/;
+    # print "!! updated payload: $payload\n";
     return $payload;
 }
 
