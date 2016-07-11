@@ -11,7 +11,7 @@ my @log_keys = ();
 push @log_keys, $ENV{'LOGENTRIES_LOG_KEY'};
 my $api_key = $ENV{'LOGENTRIES_API_KEY'};
 my $start_time = "07/07/2016 01:10PM";
-my $end_time = "07/08/2016 01:10PM";
+my $end_time = "07/07/2016 03:10PM";
 my $query_string = "where(*)";
 my $uri_handshake_response;
 my $handshake_response;
@@ -33,12 +33,12 @@ $handshake_response = $query->handshake($api_key, \@log_keys, $start_timestamp,
 ## Extract the URI link to the first page of results
 $first_page_link = $query->parseResultPageLink($handshake_response);
 
-# Poll that URI until it returns first page of results
-my $first_page = $query->getSinglePageOfResults($api_key, $first_page_link);
+# # Poll that URI until it returns first page of results
+# my $first_page = $query->getSinglePageOfResults($api_key, $first_page_link);
 
-# Parse the results and display in your own application
-my $encoded_message = $first_page->decoded_content;
-print "!! first page of result: $encoded_message\n";
+# # Parse the results and display in your own application
+# my $encoded_message = $first_page->decoded_content;
+# print "!! first page of result: $encoded_message\n";
 
 ## Get all available pages of results
 my @all_events = $query->getAllResults($api_key, $first_page_link);

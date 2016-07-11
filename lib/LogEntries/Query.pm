@@ -119,7 +119,7 @@ sub __buildPayload {
     my ($start_timestamp, $end_timestamp, $query_string) = @_;
 
     my %payloadHash = (
-        logs => @log_keys,
+        logs => [@log_keys],
         leql => {
             during => {
                 from => $start_timestamp,
@@ -132,9 +132,6 @@ sub __buildPayload {
     ## convert hash to json string
     my $payload =  to_json(\%payloadHash);
 
-    ## if only one log is in @log_keys, it doesn't get brackets,
-    ## so we need to interpolate them here
-    $payload =~ s/"logs":("[A-Za-z0-9\-]+")/"logs":[$1]/;
     return $payload;
 }
 
