@@ -9,8 +9,6 @@ use LWP::Protocol::https;
 use JSON;
 use Data::Dumper;
 
-my @log_keys;
-
 my $browser = LWP::UserAgent->new();
 $browser->cookie_jar(
     HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1)
@@ -33,9 +31,9 @@ sub handshake {
     my ($self, $api_key, $log_keys, $start_timestamp,
         $end_timestamp, $query_string) = @_;
 
-    @log_keys = @{ $log_keys };
+    my @log_keys = @{ $log_keys };
 
-    my $payload = __buildPayload($start_timestamp,
+    my $payload = __buildPayload(\@log_keys, $start_timestamp,
         $end_timestamp, $query_string);
     
     my $response = $browser->post($queryUrl,
@@ -107,8 +105,8 @@ sub getAllResults {
         my @next_page_links = $message->{"links"};
         my @events_on_page = $message->{"events"};
         $next_page_link =  $next_page_links[0][0]{'href'};
+        push @all_events, @events_on_page;
         if (defined $next_page_link && $next_page_link ne $last_link) {
-            push @all_events, @events_on_page;
             $last_link = $next_page_link;
         }
     } while ( defined $next_page_link );
@@ -116,7 +114,9 @@ sub getAllResults {
 }
 
 sub __buildPayload {
-    my ($start_timestamp, $end_timestamp, $query_string) = @_;
+    my ($log_keys, $start_timestamp, $end_timestamp, $query_string) = @_;
+
+    my @log_keys = @{ $log_keys };
 
     my %payloadHash = (
         logs => [@log_keys],
