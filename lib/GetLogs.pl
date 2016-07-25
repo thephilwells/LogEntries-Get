@@ -26,6 +26,7 @@ my $end_timestamp = str2time($end_time)."000";
 my $query = LogEntries::Query->new();
 
 ## Get back a handshake_response containing the URI to your results
+
 $handshake_response = $query->handshake($api_key, \@log_keys, $start_timestamp,
     $end_timestamp, $query_string);
 

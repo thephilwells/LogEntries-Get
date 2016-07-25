@@ -10,9 +10,6 @@ use JSON;
 use Data::Dumper;
 
 my $browser = LWP::UserAgent->new();
-$browser->cookie_jar(
-    HTTP::Cookies->new(file => "lwpcookies.txt", autosave => 1)
-);
 
 my $queryUrl = "https://rest.logentries.com/query/logs/";
 
