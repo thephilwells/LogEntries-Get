@@ -1,15 +1,18 @@
 ## Sample script to illustrate use of LE::Query methods
-
 use LogEntries::Query;
 use strict;
 use warnings;
 use Date::Parse;
 use Data::Dumper;
-use JSON;
+use YAML::XS 'LoadFile';
 
 my @log_keys = [];
-push @log_keys, $ENV{'LOGENTRIES_LOG_KEY'};
-my $api_key = $ENV{'LOGENTRIES_API_KEY'};
+
+## read config from YAML file
+my $config = LoadFile('config.yaml');
+push @log_keys, $config->{logentries_log_key};
+my $api_key = $config->{logentries_api_key};
+
 my $start_time = "07/10/2016 06:24PM";
 my $end_time = "07/17/2016 06:24PM";
 my $query_string = "where(*)";
